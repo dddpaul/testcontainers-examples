@@ -32,3 +32,34 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.testcontainers:testcontainers:1.1.7')
 }
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+}
+
+task buildDist(type: Tar, group: 'Build', description: 'Builds the Tar distribution of the project.') {
+    archiveName = "${rootProject.name}.tar"
+    from(rootProject.projectDir) {
+        exclude('**/build/**')
+        exclude('**/*.tar')
+        exclude('**/.gradle/**')
+        exclude('**/.idea/**')
+    }
+}
+
+task resolveDependencies {
+    doLast {
+        project.rootProject.allprojects.each { subProject ->
+            subProject.buildscript.configurations.each { configuration ->
+                configuration.resolve()
+            }
+            subProject.configurations.each { configuration ->
+                configuration.resolve()
+            }
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.buildDist)
+project.tasks.buildDist.dependsOn(['build'])
