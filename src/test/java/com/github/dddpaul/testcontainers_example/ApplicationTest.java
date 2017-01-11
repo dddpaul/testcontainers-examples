@@ -10,17 +10,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ApplicationTest {
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {Application.class, TestConfiguration.class})
+public class ApplicationTest extends TestConfiguration {
 
-	@Autowired
-	TestRestTemplate restTemplate;
+    @Autowired
+    TestRestTemplate restTemplate;
 
-	@Test
-	public void shouldReturnUserList() {
-		List users = restTemplate.getForObject("/", List.class);
-		assertFalse(users.isEmpty());
-	}
+    @Test
+    public void shouldReturnUserList() {
+        List users = restTemplate.getForObject("/", List.class);
+        assertFalse(users.isEmpty());
+    }
 }
