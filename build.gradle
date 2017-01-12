@@ -43,6 +43,7 @@ task wrapper(type: Wrapper) {
 }
 
 task buildDist(type: Tar, group: 'Build', description: 'Builds the Tar distribution of the project.') {
+    dependsOn build
     archiveName = "${rootProject.name}.tar"
     from(rootProject.projectDir) {
         exclude('**/build/**')
@@ -51,6 +52,8 @@ task buildDist(type: Tar, group: 'Build', description: 'Builds the Tar distribut
         exclude('**/.idea/**')
     }
 }
+
+build.finalizedBy(project.tasks.buildDist)
 
 task resolveDependencies {
     doLast {
@@ -64,9 +67,6 @@ task resolveDependencies {
         }
     }
 }
-
-build.finalizedBy(project.tasks.buildDist)
-project.tasks.buildDist.dependsOn(['build'])
 
 
 import com.bmuschko.gradle.docker.tasks.image.*
@@ -82,7 +82,6 @@ task createDockerfile(type: Dockerfile) {
     workingDir '/var/tests'
     entryPoint './gradlew', '--offline', 'clean', 'test'
 }
-
 
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
@@ -114,12 +113,7 @@ task logContainer(type: DockerLogsContainer) {
     }
 }
 
-task waitContainer(type: DockerWaitContainer) {
+task testContainer(type: DockerWaitContainer) {
     dependsOn logContainer
     targetContainerId { createContainer.getContainerId() }
-}
-
-task testContainer(type: Test) {
-    dependsOn createContainer
-    finalizedBy waitContainer
 }
