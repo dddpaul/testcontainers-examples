@@ -69,12 +69,24 @@ build.finalizedBy(project.tasks.buildDist)
 project.tasks.buildDist.dependsOn(['build'])
 
 
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.*
 import com.bmuschko.gradle.docker.tasks.container.*
 
-task buildImage(type: DockerBuildImage) {
+task createDockerfile(type: Dockerfile) {
     dependsOn buildDist
-    inputDir = rootProject.projectDir
+    destFile = project.file('build/Dockerfile')
+    from 'dddpaul/jdk-standard'
+    runCommand 'mkdir /var/tests'
+    addFile "distributions/${buildDist.archiveName}", '/var/tests'
+    runCommand 'rm -rf /root/.gradle && cd /var/tests && ./gradlew --refresh-dependencies resolveDependencies'
+    workingDir '/var/tests'
+    entryPoint './gradlew', '--offline', 'clean', 'test'
+}
+
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
     tag = "dddpaul/${rootProject.name}"
 }
 
