@@ -7,6 +7,8 @@ import org.testcontainers.shaded.com.github.dockerjava.api.command.InspectContai
 
 public class SiblingContainer<T extends SiblingContainer<T>> extends GenericContainer<T> {
 
+    private String networkName = "bridge";
+
     public SiblingContainer(String dockerImageName) {
         super(dockerImageName);
     }
@@ -15,11 +17,20 @@ public class SiblingContainer<T extends SiblingContainer<T>> extends GenericCont
     public String getContainerIpAddress() {
         DockerClient client = DockerClientFactory.instance().client();
         InspectContainerResponse response = client.inspectContainerCmd(getContainerId()).exec();
-        return response.getNetworkSettings().getIpAddress();
+        return response
+                .getNetworkSettings()
+                .getNetworks()
+                .get(networkName)
+                .getIpAddress();
     }
 
     @Override
     public Integer getMappedPort(int originalPort) {
         return originalPort;
+    }
+
+    public T withNetworkName(String dockerNetworkName) {
+        this.networkName = dockerNetworkName;
+        return self();
     }
 }
