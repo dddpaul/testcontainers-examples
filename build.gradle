@@ -82,6 +82,8 @@ task createContainer(type: DockerCreateContainer) {
     dependsOn buildImage
     targetImageId { buildImage.getImageId() }
     portBindings = ['8080:8080']
+    binds = ['/var/run/docker.sock':'/var/run/docker.sock']
+    cmd = ['--stacktrace', '--debug']
 }
 
 task startContainer(type: DockerStartContainer) {
@@ -90,7 +92,7 @@ task startContainer(type: DockerStartContainer) {
 }
 
 task logContainer(type: DockerLogsContainer) {
-    dependsOn createContainer
+    dependsOn startContainer
     targetContainerId { createContainer.getContainerId() }
     follow = true
     tailAll = true
@@ -105,6 +107,6 @@ task waitContainer(type: DockerWaitContainer) {
 }
 
 task testContainer(type: Test) {
-    dependsOn startContainer
+    dependsOn createContainer
     finalizedBy waitContainer
 }

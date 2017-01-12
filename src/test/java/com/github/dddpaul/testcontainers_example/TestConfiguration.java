@@ -16,7 +16,7 @@ public class TestConfiguration {
     private static final int mongoPort = 27017;
 
     @ClassRule
-    public static GenericContainer mongo = new GenericContainer("mvertes/alpine-mongo:3.2.10-3")
+    public static GenericContainer mongo = new SiblingContainer("mvertes/alpine-mongo:3.2.10-3")
             .withExposedPorts(mongoPort);
 
     @Bean
