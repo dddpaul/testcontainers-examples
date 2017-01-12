@@ -83,7 +83,8 @@ task createContainer(type: DockerCreateContainer) {
     targetImageId { buildImage.getImageId() }
     portBindings = ['8080:8080']
     binds = ['/var/run/docker.sock':'/var/run/docker.sock']
-    cmd = ['--stacktrace', '--debug']
+    env = ['DOCKER_SOCK_BOUND=true']
+//    cmd = ['--stacktrace', '--debug']
 }
 
 task startContainer(type: DockerStartContainer) {
