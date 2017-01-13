@@ -1,3 +1,4 @@
 rootProject.name = 'testcontainers_example'
 
 include 'mongo_client'
+include 'mongo_template'
