@@ -20,16 +20,18 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class UsersController {
 
     @Autowired
-    MongoClient mongoClient;
+    private MongoClient mongoClient;
+
+    private MongoCollection<Document> users;
 
     @PostConstruct
-    void init() {
-        MongoCollection<Document> users = mongoClient.getDatabase("test").getCollection("users");
+    private void init() {
+        users = mongoClient.getDatabase("test").getCollection("users");
         users.updateOne(eq("_id", 1), set("name", "paul"), new UpdateOptions().upsert(true));
     }
 
     @RequestMapping(value = "/", method = GET, produces = "application/json")
-    MongoIterable<Document> index() {
-        return mongoClient.getDatabase("test").getCollection("users").find();
+    public MongoIterable<Document> index() {
+        return users.find();
     }
 }

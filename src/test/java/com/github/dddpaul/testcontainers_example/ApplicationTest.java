@@ -21,7 +21,7 @@ public class ApplicationTest extends TestConfiguration {
 
     @Test
     public void shouldReturnUserList() {
-        List users = restTemplate.getForObject("/users", List.class);
+        List users = restTemplate.getForObject("/users/", List.class);
         assertFalse(users.isEmpty());
     }
 }
