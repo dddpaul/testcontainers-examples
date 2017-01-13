@@ -5,6 +5,9 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.shaded.com.github.dockerjava.api.DockerClient;
 import org.testcontainers.shaded.com.github.dockerjava.api.command.InspectContainerResponse;
 
+/**
+ * Variant of {@link GenericContainer} that can be launched from another container with mounted docker.sock.
+ */
 public class SiblingContainer<T extends SiblingContainer<T>> extends GenericContainer<T> {
 
     private String networkName = "bridge";
