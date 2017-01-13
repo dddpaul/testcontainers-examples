@@ -13,8 +13,8 @@ import static org.junit.Assert.assertFalse;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {Application.class, TestConfiguration.class})
-public class ApplicationTest extends TestConfiguration {
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {MongoClientApp.class, TestConfiguration.class})
+public class MongoClientAppTest extends TestConfiguration {
 
     @Autowired
     TestRestTemplate restTemplate;

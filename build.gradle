@@ -1,3 +1,6 @@
+import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.container.*
+
 buildscript {
     ext {
         springBootVersion = '1.4.3.RELEASE'
@@ -12,108 +15,104 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'com.bmuschko.docker-remote-api'
+subprojects {
 
-jar {
-    baseName = 'testcontainers_example'
-    version = '0.0.1-SNAPSHOT'
-}
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'com.bmuschko.docker-remote-api'
 
-sourceCompatibility = 1.8
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
-
-dependencies {
-    compile('org.springframework.boot:spring-boot-starter-data-mongodb')
-    compile('org.springframework.boot:spring-boot-starter-web')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('org.testcontainers:testcontainers:1.1.7')
-}
-
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
-}
-
-task buildDist(type: Tar, group: 'Build', description: 'Builds the Tar distribution of the project.') {
-    dependsOn build
-    archiveName = "${rootProject.name}.tar"
-    from(rootProject.projectDir) {
-        exclude('**/build/**')
-        exclude('**/*.tar')
-        exclude('**/.gradle/**')
-        exclude('**/.idea/**')
+    jar {
+        baseName = 'testcontainers_example'
+        version = '0.0.1-SNAPSHOT'
     }
-}
 
-build.finalizedBy(project.tasks.buildDist)
+    sourceCompatibility = 1.8
 
-task resolveDependencies {
-    doLast {
-        project.rootProject.allprojects.each { subProject ->
-            subProject.buildscript.configurations.each { configuration ->
-                configuration.resolve()
-            }
-            subProject.configurations.each { configuration ->
-                configuration.resolve()
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile('org.springframework.boot:spring-boot-starter-web')
+        testCompile('org.springframework.boot:spring-boot-starter-test')
+        testCompile('org.testcontainers:testcontainers:1.1.7')
+    }
+
+    task wrapper(type: Wrapper) {
+        gradleVersion = '3.3'
+    }
+
+    task buildDist(type: Tar, group: 'Build', description: 'Builds the Tar distribution of the project.') {
+        dependsOn build
+        archiveName = "${rootProject.name}.tar"
+        from(rootProject.projectDir) {
+            exclude('**/build/**')
+            exclude('**/*.tar')
+            exclude('**/.gradle/**')
+            exclude('**/.idea/**')
+        }
+    }
+
+    build.finalizedBy(project.tasks.buildDist)
+
+    task resolveDependencies {
+        doLast {
+            project.rootProject.allprojects.each { subProject ->
+                subProject.buildscript.configurations.each { configuration ->
+                    configuration.resolve()
+                }
+                subProject.configurations.each { configuration ->
+                    configuration.resolve()
+                }
             }
         }
     }
-}
 
-
-import com.bmuschko.gradle.docker.tasks.image.*
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task createDockerfile(type: Dockerfile) {
-    dependsOn buildDist
-    destFile = project.file('build/Dockerfile')
-    from 'dddpaul/jdk-standard'
-    runCommand 'mkdir /var/tests'
-    addFile "distributions/${buildDist.archiveName}", '/var/tests'
-    runCommand 'rm -rf /root/.gradle && cd /var/tests && ./gradlew --refresh-dependencies resolveDependencies'
-    workingDir '/var/tests'
-    entryPoint './gradlew', '--offline', 'clean', 'test'
-}
-
-task buildImage(type: DockerBuildImage) {
-    dependsOn createDockerfile
-    inputDir = createDockerfile.destFile.parentFile
-    tag = "dddpaul/${rootProject.name}"
-}
-
-task createContainer(type: DockerCreateContainer) {
-    dependsOn buildImage
-    targetImageId { buildImage.getImageId() }
-    portBindings = ['8080:8080']
-    binds = ['/var/run/docker.sock':'/var/run/docker.sock']
-    env = ['DOCKER_SOCK_BOUND=true']
-//    cmd = ['--stacktrace', '--debug']
-}
-
-task startContainer(type: DockerStartContainer) {
-    dependsOn createContainer
-    targetContainerId { createContainer.getContainerId() }
-}
-
-task logContainer(type: DockerLogsContainer) {
-    dependsOn startContainer
-    targetContainerId { createContainer.getContainerId() }
-    follow = true
-    tailAll = true
-    onNext { message ->
-        logger.quiet message.toString()
+    task createDockerfile(type: Dockerfile) {
+        dependsOn buildDist
+        destFile = project.file('build/Dockerfile')
+        from 'dddpaul/jdk-standard'
+        runCommand 'mkdir /var/tests'
+        addFile "distributions/${buildDist.archiveName}", '/var/tests'
+        runCommand 'rm -rf /root/.gradle && cd /var/tests && ./gradlew --refresh-dependencies resolveDependencies'
+        workingDir '/var/tests'
+        entryPoint './gradlew', '--offline', 'clean', 'test'
     }
-}
 
-task testContainer(type: DockerWaitContainer) {
-    dependsOn logContainer
-    targetContainerId { createContainer.getContainerId() }
+    task buildImage(type: DockerBuildImage) {
+        dependsOn createDockerfile
+        inputDir = createDockerfile.destFile.parentFile
+        tag = "dddpaul/${rootProject.name}"
+    }
+
+    task createContainer(type: DockerCreateContainer) {
+        dependsOn buildImage
+        targetImageId { buildImage.getImageId() }
+        portBindings = ['8080:8080']
+        binds = ['/var/run/docker.sock': '/var/run/docker.sock']
+        env = ['DOCKER_SOCK_BOUND=true']
+        //    cmd = ['--stacktrace', '--debug']
+    }
+
+    task startContainer(type: DockerStartContainer) {
+        dependsOn createContainer
+        targetContainerId { createContainer.getContainerId() }
+    }
+
+    task logContainer(type: DockerLogsContainer) {
+        dependsOn startContainer
+        targetContainerId { createContainer.getContainerId() }
+        follow = true
+        tailAll = true
+        onNext { message ->
+            logger.quiet message.toString()
+        }
+    }
+
+    task testContainer(type: DockerWaitContainer) {
+        dependsOn logContainer
+        targetContainerId { createContainer.getContainerId() }
+    }
 }
