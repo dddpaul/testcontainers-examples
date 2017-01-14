@@ -6,3 +6,9 @@ services:
     image: mvertes/alpine-mongo:3.2.10-3
     ports:
       - "27017:27017"
+
+  elastic:
+    image: elasticsearch:5.1.2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
