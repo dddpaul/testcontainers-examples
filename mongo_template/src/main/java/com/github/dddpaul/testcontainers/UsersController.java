@@ -1,4 +1,4 @@
-package com.github.dddpaul.testcontainers_example;
+package com.github.dddpaul.testcontainers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;

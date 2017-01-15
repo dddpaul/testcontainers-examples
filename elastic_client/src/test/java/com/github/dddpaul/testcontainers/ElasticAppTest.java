@@ -1,4 +1,4 @@
-package com.github.dddpaul.testcontainers_example;
+package com.github.dddpaul.testcontainers;
 
 import org.junit.Before;
 import org.junit.Test;

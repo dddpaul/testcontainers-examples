@@ -1,4 +1,4 @@
-rootProject.name = 'testcontainers_example'
+rootProject.name = 'testcontainers-examples'
 
 include 'elastic_client'
 include 'mongo_client'

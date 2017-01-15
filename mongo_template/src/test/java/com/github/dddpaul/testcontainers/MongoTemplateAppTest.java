@@ -1,4 +1,4 @@
-package com.github.dddpaul.testcontainers_example;
+package com.github.dddpaul.testcontainers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,8 +13,8 @@ import static org.junit.Assert.assertFalse;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {MongoClientApp.class, TestConfiguration.class})
-public class MongoClientAppTest extends TestConfiguration {
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {MongoTemplateApp.class, TestConfiguration.class})
+public class MongoTemplateAppTest extends TestConfiguration {
 
     @Autowired
     TestRestTemplate restTemplate;

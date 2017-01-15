@@ -1,4 +1,4 @@
-package com.github.dddpaul.testcontainers_example;
+package com.github.dddpaul.testcontainers;
 
 import com.mongodb.MongoClient;
 import org.springframework.boot.SpringApplication;

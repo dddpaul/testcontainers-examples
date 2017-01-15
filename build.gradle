@@ -23,7 +23,7 @@ subprojects {
     apply plugin: 'com.bmuschko.docker-remote-api'
 
     jar {
-        baseName = 'testcontainers_example'
+        baseName = 'testcontainers-examples'
         version = '0.0.1-SNAPSHOT'
     }
 
