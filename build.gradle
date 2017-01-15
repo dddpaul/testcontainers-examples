@@ -78,13 +78,13 @@ subprojects {
         addFile "distributions/${buildDist.archiveName}", '/var/tests'
         runCommand 'rm -rf /root/.gradle && cd /var/tests && ./gradlew --refresh-dependencies resolveDependencies'
         workingDir '/var/tests'
-        entryPoint './gradlew', '--offline', 'clean', 'test'
+        entryPoint './gradlew', '--offline', ":${project.name}:clean", ":${project.name}:test"
     }
 
     task buildImage(type: DockerBuildImage) {
         dependsOn createDockerfile
         inputDir = createDockerfile.destFile.parentFile
-        tag = "dddpaul/${rootProject.name}"
+        tag = "dddpaul/${rootProject.name}-${project.name}"
     }
 
     task createContainer(type: DockerCreateContainer) {
