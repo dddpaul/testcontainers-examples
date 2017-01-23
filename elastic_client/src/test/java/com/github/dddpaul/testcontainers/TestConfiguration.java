@@ -1,6 +1,5 @@
 package com.github.dddpaul.testcontainers;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
@@ -10,8 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.testcontainers.containers.GenericContainer;
 
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @Configuration
 public class TestConfiguration {
@@ -20,9 +20,9 @@ public class TestConfiguration {
     private static final int ELASTIC_PORT = 9300;
 
     @ClassRule
-    public static GenericContainer elastic = StringUtils.isEmpty(System.getenv("DOCKER_SOCK_BOUND")) ?
-            new GenericContainer(ELASTIC_IMAGE).withExposedPorts(ELASTIC_PORT) :
-            new SiblingContainer(ELASTIC_IMAGE).withExposedPorts(ELASTIC_PORT);
+    public static GenericContainer elastic = new GenericContainer(ELASTIC_IMAGE)
+            .withExposedPorts(ELASTIC_PORT)
+            .withStartupTimeout(Duration.of(120, ChronoUnit.SECONDS));
 
     @Bean
     @Primary
@@ -34,9 +34,5 @@ public class TestConfiguration {
                 .settings(settings)
                 .node()
                 .client();
-    }
-
-    private InetSocketAddress address() throws UnknownHostException {
-        return new InetSocketAddress(elastic.getContainerIpAddress(), elastic.getMappedPort(ELASTIC_PORT));
     }
 }
